@@ -1,0 +1,72 @@
+@page "/form";
+@inject HttpClient Http;
+@using BlazorDeneme.Core;
+@using BlazorDeneme.Service;
+@inject FormService FormService;
+<div class="row">
+    <EditForm Model="formData" OnValidSubmit="submitForm">
+        <DataAnnotationsValidator />
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="name">Name</label>
+                <input type="text" @bind="formData.name" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="e_mail">E-Mail</label>
+                <input type="text" @bind="formData.e_mail" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="age">Age</label>
+                <input type="number" @bind="formData.age" class="form-control">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="phone_number">Phone Number</label>
+                <input type="text" @bind="formData.phone_number" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="adress">Adress</label>
+                <input type="text" @bind="formData.adress" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Gönder</button>
+    </EditForm>
+</div>
+<button @onclick="getData" class="btn btn-primary">Verileri Al</button>
+
+@if (getFormData != null && getFormData.Any())
+{
+    <ul>
+        @foreach (var item in getFormData)
+        {
+            <li>@item.name - @item.e_mail - @item.age - @item.phone_number - @item.adress</li>
+        }
+    </ul>
+}
+@code {
+    public FormData formData = new FormData();
+    public List<FormData> getFormData;
+    private async Task submitForm()
+    {
+        await FormService.SubmitForm(formData);
+    }
+    private async Task getData()
+    {
+        try
+        {
+            getFormData = await FormService.GetData();
+            Console.WriteLine($"Veri alındı: {getFormData.Count} öğe."); // Konsola veri sayısını yazdır
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"API hatası: {ex.Message}"); // API hatası durumunda mesajı yazdır
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Beklenmeyen hata: {ex.Message}"); // Diğer beklenmeyen hatalar için
+        }
+    }
+}
